@@ -1,0 +1,85 @@
+// This 'generator' block tells Prisma to create the TypeScript code we use to talk to the DB.
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+// This 'datasource' block tells Prisma which database we are using.
+datasource db {
+  provider = "postgresql" // PostgreSQL is the specific type of database
+}
+
+/**
+ * MODEL: Course
+ * This defines a 'Course' table in our database.
+ * Think of it like a sheet in Excel where each row is a course.
+ */
+model Course {
+  id             String   @id @default(uuid()) // A unique ID for every record, automatically generated (UUID)
+  code           String   @unique // The human-readable code (e.g., "CSCI 23500"). '@unique' means no two rows can have the same code.
+  courseNumber   String // e.g., "23500"
+  subjectCode    String // e.g., "CSCI"
+  name           String // The title of the course
+  longName       String? // The '?' means this can be empty (null) in the database
+  description    String?
+  credits        Int      @default(0) // An integer number. Defaults to 0 if not provided.
+  department     String // e.g., "CSCI-HTR"
+  career         String   @default("Undergraduate")
+  componentsJson String? // We store extra data as a text string (JSON)
+  prereqText     String? // Raw `descriptionLong` from Coursedog (e.g. "(CSCI 24500 or CSCI 26000) and CSCI 23500"). Null if the course has no requirementGroup. Source of truth for the AND/OR parser.
+
+  // RELATIONS: These link this table to the 'Prerequisite' table.
+  // A course can have many prerequisites, and be a prerequisite for many other courses.
+  prerequisites  Prerequisite[] @relation("CoursePrereqs")
+  prerequisiteOf Prerequisite[] @relation("PrereqFor")
+
+  // Many-to-many with Professor. Prisma auto-creates a hidden join table
+  // indexed on both directions, so course->profs and prof->courses lookups
+  // are fast.
+  professors Professor[]
+
+  createdAt DateTime @default(now()) // Automatically set to the current time when created
+}
+
+/**
+ * MODEL: Prerequisite
+ * This is a "join table" that connects two courses together.
+ * It says: "Course A requires Course B".
+ */
+model Prerequisite {
+  id             String  @id @default(uuid())
+  
+  // Link to the main course
+  courseId        String
+  course         Course  @relation("CoursePrereqs", fields: [courseId], references: [id])
+  
+  // Link to the course that IS the prerequisite (if we found it in our database)
+  prereqCourseId String?
+  prereqCourse   Course? @relation("PrereqFor", fields: [prereqCourseId], references: [id])
+  
+  // The raw code string (e.g., "MATH 150") in case the course isn't in our DB yet
+  prereqCode     String 
+
+  // This ensures we don't accidentally list the same prerequisite for the same course twice
+  @@unique([courseId, prereqCode])
+}
+
+/**
+ * MODEL: Professor
+ * Stores information about instructors.
+ */
+model Professor {
+  id             String   @id @default(uuid())
+  name           String
+  department     String?
+  rmpId          String?  @unique // ID from RateMyProfessors
+  avgRating      Float?   // Decimal numbers (e.g., 4.5)
+  avgDifficulty  Float?
+  wouldTakeAgain Float?
+  numRatings     Int      @default(0)
+
+  // Many-to-many with Course (other side of the relation declared on Course).
+  courses Course[]
+
+  createdAt DateTime @default(now())
+}
