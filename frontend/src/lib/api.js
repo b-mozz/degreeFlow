@@ -6,7 +6,9 @@
  * means components never touch URLs or response plumbing directly.
  */
 
-const BASE = '/api'
+// In development, we use Vite proxy (/api). 
+// In production, we use the environment variable VITE_API_URL (e.g., https://your-backend.onrender.com).
+const BASE = import.meta.env.VITE_API_URL || '/api'
 
 /** Throw a useful Error if the response isn't OK; otherwise return parsed JSON. */
 async function handle(res) {

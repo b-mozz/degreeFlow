@@ -1,4 +1,9 @@
 {
+  "name": "degreeflow-monorepo",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd backend && npx prisma generate"
+  },
   "dependencies": {
     "@prisma/client": "^7.8.0"
   }

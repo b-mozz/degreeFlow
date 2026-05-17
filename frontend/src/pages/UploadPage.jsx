@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { parsePDFTranscript, parseTranscriptLines } from '../lib/pdfParser'
 
 function UploadIcon() {
   return (
@@ -15,26 +16,52 @@ export default function UploadPage() {
   const [dragOver, setDragOver] = useState(false)
   const [file, setFile] = useState(null)
   const [text, setText] = useState('')
+  const [isParsing, setIsParsing] = useState(false)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
-  const canParse = file !== null || text.trim().length > 0
+  const canParse = (file !== null || text.trim().length > 0) && !isParsing
 
   const handleDrop = (e) => {
     e.preventDefault()
     setDragOver(false)
     const dropped = e.dataTransfer.files[0]
-    if (dropped?.type === 'application/pdf') setFile(dropped)
+    if (dropped?.type === 'application/pdf') {
+      setFile(dropped)
+      setText('') // Clear text if file is dropped
+    }
   }
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0]
-    if (selected) setFile(selected)
+    if (selected) {
+      setFile(selected)
+      setText('')
+    }
   }
 
-  const handleParse = () => {
-    // TODO: send to backend /transcript/parse
-    navigate('/flowchart')
+  const handleParse = async () => {
+    setIsParsing(true)
+    try {
+      let result
+      if (file) {
+        const buffer = await file.arrayBuffer()
+        result = await parsePDFTranscript(buffer)
+      } else {
+        const lines = text.split('\n').filter(l => l.trim())
+        result = parseTranscriptLines(lines)
+      }
+
+      console.log('Parsed transcript:', result)
+      localStorage.setItem('parsedTranscript', JSON.stringify(result))
+      navigate('/flowchart')
+    } catch (err) {
+      console.error('Failed to parse transcript:', err)
+      alert(`Error parsing transcript: ${err.message || 'Unknown error'}. Please try pasting the text directly if the PDF fails.`)
+    } finally {
+
+      setIsParsing(false)
+    }
   }
 
   return (
@@ -117,7 +144,10 @@ export default function UploadPage() {
             className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
             placeholder="Paste your unofficial transcript here..."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value)
+              if (e.target.value.trim()) setFile(null) // Clear file if text is pasted
+            }}
           />
         </div>
 
@@ -127,10 +157,11 @@ export default function UploadPage() {
             disabled={!canParse}
             className="border border-purple-700 text-purple-700 bg-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Parse Text
+            {isParsing ? 'Parsing...' : 'Parse Transcript'}
           </button>
         </div>
       </div>
     </div>
   )
 }
+

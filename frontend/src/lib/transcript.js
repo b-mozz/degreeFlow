@@ -50,7 +50,12 @@ export function loadTranscript() {
       }
     }
   } catch {
-    // Corrupt/old localStorage value — fall through to the demo.
+    // Corrupt/old localStorage value — fall through.
   }
-  return normalize(DEMO_TRANSCRIPT, 'demo')
+  
+  // Return empty state instead of DEMO_TRANSCRIPT
+  return normalize({
+    student: { name: '', cumGpa: 0 },
+    courses: []
+  }, 'empty')
 }
