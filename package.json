@@ -5,6 +5,10 @@
     "postinstall": "cd backend && npx prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0"
+    "@prisma/client": "^7.8.0",
+    "cors": "^2.8.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
   }
 }
