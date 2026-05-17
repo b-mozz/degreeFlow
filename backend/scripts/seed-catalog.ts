@@ -3,7 +3,7 @@ import vm from "vm"; // Node.js 'Virtual Machine' module to execute code in a sa
 import fs from "fs";
 import path from "path";
 import { PrismaPg } from "@prisma/adapter-pg"; // Driver adapter that talks to PostgreSQL
-import { PrismaClient } from "../generated/prisma/client"; // The database client generator
+import { PrismaClient } from "@prisma/client"; // The database client generator
 import { parsePrereqs } from "./parse-prereqs"; // Our helper function from the other file
 
 // Prisma 7 requires us to explicitly pass a driver adapter.
