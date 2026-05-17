@@ -22,14 +22,24 @@ function AlertIcon() {
   )
 }
 
+function CalendarIcon() {
+  return (
+    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  )
+}
+
 const STYLES = {
   completed:    { border: 'border-green-400',  bg: 'bg-white',     Icon: CheckIcon },
   'in-progress':{ border: 'border-amber-400',  bg: 'bg-amber-50',  Icon: ClockIcon },
+  planned:      { border: 'border-blue-300',   bg: 'bg-blue-50',   Icon: CalendarIcon },
   needed:       { border: 'border-red-400',    bg: 'bg-white',     Icon: AlertIcon },
 }
 
 const BADGE = {
   'in-progress': <span className="text-xs font-medium text-amber-500">In Progress</span>,
+  planned:       <span className="text-xs font-medium text-blue-500">Planned</span>,
   needed:        <span className="text-xs font-medium text-red-400">Needed</span>,
 }
 

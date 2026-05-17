@@ -1,8 +1,8 @@
 {
-  "_comment": "Parsed from B_Mozzumdar_Transcript.pdf (Hunter unofficial transcript, print date 2025-12-19). Hand-extracted demo input for the recommender until the AI/OCR transcript parser exists. status: completed = graded; in-progress = current term, grade pending; planned = future term, registered.",
+  "_comment": "Hand-extracted demo input for the recommender until the AI/OCR transcript parser exists. Student identity is fictional placeholder data. status: completed = graded; in-progress = current term, grade pending; planned = future term, registered.",
   "student": {
-    "name": "Bimukti Mozzumdar",
-    "studentId": "24507756",
+    "name": "Jordan Rivera",
+    "studentId": "12345678",
     "printDate": "2025-12-19",
     "programs": ["Computer Science B.A. (Computer Science Concentration)", "Special Honors Program", "Hunter College Focus Study Minor (FS: Computer Science Track)"],
     "majorDeclaredTerm": "2025 Spring",
