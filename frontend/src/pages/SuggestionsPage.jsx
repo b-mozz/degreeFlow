@@ -158,12 +158,21 @@ function ProfessorListRow({ professor }) {
   )
 }
 
+/** Per-accent class sets so a card can match its section's color. */
+const CARD_ACCENTS = {
+  emerald: { border: 'border-emerald-200', hover: 'hover:bg-emerald-50/60', panel: 'border-emerald-100 bg-emerald-50/40' },
+  amber:   { border: 'border-amber-200',   hover: 'hover:bg-amber-50/60',   panel: 'border-amber-100 bg-amber-50/40' },
+}
+
 /**
- * A major-elective card. Styled like the Flowchart's CourseCard, and clickable:
+ * A course card styled like the Flowchart's CourseCard, and clickable:
  * expanding it fetches the top professors for that course on demand.
+ *
+ * @param right    optional node shown top-right (e.g. a status Chip)
+ * @param accent   'emerald' (electives) or 'amber' (gen-ed)
  */
-function ElectiveCard({ course }) {
-  const { code, name, credits, unlocks, professor } = course
+function ExpandableCourseCard({ code, name, credits, professor, right, accent = 'emerald' }) {
+  const a = CARD_ACCENTS[accent]
   const [open, setOpen] = useState(false)
   const [profs, setProfs] = useState(null)
   const [loadingProfs, setLoadingProfs] = useState(false)
@@ -184,11 +193,11 @@ function ElectiveCard({ course }) {
   }
 
   return (
-    <div className="border border-emerald-200 bg-white rounded-xl shadow-sm overflow-hidden self-start">
+    <div className={`border ${a.border} bg-white rounded-xl shadow-sm overflow-hidden self-start`}>
       <button
         type="button"
         onClick={toggle}
-        className="w-full text-left p-3.5 hover:bg-emerald-50/60 transition-colors"
+        className={`w-full text-left p-3.5 ${a.hover} transition-colors`}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -199,9 +208,7 @@ function ElectiveCard({ course }) {
             <p className="text-sm text-gray-600 leading-snug mt-0.5">{name}</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {unlocks > 0
-              ? <Chip tone="purple">unlocks {unlocks}</Chip>
-              : <Chip tone="green">Ready</Chip>}
+            {right}
             <Chevron open={open} />
           </div>
         </div>
@@ -211,7 +218,7 @@ function ElectiveCard({ course }) {
       </button>
 
       {open && (
-        <div className="border-t border-emerald-100 bg-emerald-50/40 px-3.5 py-3">
+        <div className={`border-t ${a.panel} px-3.5 py-3`}>
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
             Top professors
           </p>
@@ -257,7 +264,19 @@ function MajorElectives({ majorElectives }) {
           <GroupLabel>Eligible now — tap a course for professors</GroupLabel>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
             {eligible.map((c) => (
-              <ElectiveCard key={c.code} course={c} />
+              <ExpandableCourseCard
+                key={c.code}
+                code={c.code}
+                name={c.name}
+                credits={c.credits}
+                professor={c.professor}
+                accent="emerald"
+                right={
+                  c.unlocks > 0
+                    ? <Chip tone="purple">unlocks {c.unlocks}</Chip>
+                    : <Chip tone="green">Ready</Chip>
+                }
+              />
             ))}
           </div>
         </>
@@ -292,12 +311,13 @@ function GeneralEducation({ generalElectives }) {
             ) : (
               <CardList>
                 {bucket.suggestions.map((s) => (
-                  <CourseRow
+                  <ExpandableCourseCard
                     key={s.code}
                     code={s.code}
                     name={s.name}
                     credits={s.credits}
-                    sub={<ProfessorNote professor={s.professor} />}
+                    professor={s.professor}
+                    accent="amber"
                   />
                 ))}
               </CardList>
