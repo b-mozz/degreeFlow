@@ -24,22 +24,22 @@ export default function Collapsible({ title, subtitle, chip, accent, defaultOpen
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left"
+        className="w-full flex items-center justify-between gap-2 px-4 sm:px-5 py-4 text-left"
       >
-        <div className="flex items-center gap-3">
-          {accent && <span className={`w-2.5 h-2.5 rounded-full ${accent}`} />}
-          <div>
+        <div className="flex items-center gap-3 min-w-0">
+          {accent && <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${accent}`} />}
+          <div className="min-w-0">
             <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
             {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           {chip}
           <Chevron open={open} />
         </div>
       </button>
 
-      {open && <div className="px-5 pb-5 border-t border-gray-100 pt-4">{children}</div>}
+      {open && <div className="px-4 sm:px-5 pb-5 border-t border-gray-100 pt-4">{children}</div>}
     </section>
   )
 }

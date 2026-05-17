@@ -26,13 +26,13 @@ function Chip({ children, tone = 'gray' }) {
 /** One course card: code + credits, title, optional sub-line and right slot. */
 function CourseRow({ code, name, credits, sub, right }) {
   return (
-    <div className="flex items-start justify-between gap-4 bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-3">
+    <div className="flex items-start justify-between gap-2 sm:gap-4 bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-3.5 py-3">
       <div className="min-w-0">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 flex-wrap">
           <span className="text-sm font-semibold text-gray-900">{code}</span>
           {credits != null && <span className="text-xs text-gray-400">{credits} cr</span>}
         </div>
-        <p className="text-sm text-gray-600 leading-snug">{name}</p>
+        <p className="text-sm text-gray-600 leading-snug break-words">{name}</p>
         {sub}
       </div>
       {right && <div className="flex-shrink-0 pt-0.5">{right}</div>}
@@ -145,7 +145,7 @@ function ProfessorListRow({ professor }) {
   const rating = professor.avgRating != null ? professor.avgRating.toFixed(1) : '—'
   const diff = professor.avgDifficulty != null ? professor.avgDifficulty.toFixed(1) : '—'
   return (
-    <li className="flex items-center justify-between gap-3 text-xs">
+    <li className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-3 text-xs">
       <span className="text-gray-700 font-medium truncate">{professor.name}</span>
       <span className="text-gray-500 flex-shrink-0">
         <span className="text-amber-600">★ {rating}</span>
@@ -197,17 +197,17 @@ function ExpandableCourseCard({ code, name, credits, professor, right, accent = 
       <button
         type="button"
         onClick={toggle}
-        className={`w-full text-left p-3.5 ${a.hover} transition-colors`}
+        className={`w-full text-left p-3 sm:p-3.5 ${a.hover} transition-colors`}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="min-w-0">
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-sm font-bold text-gray-900">{code}</span>
               <span className="text-xs text-gray-400">{credits} cr</span>
             </div>
-            <p className="text-sm text-gray-600 leading-snug mt-0.5">{name}</p>
+            <p className="text-sm text-gray-600 leading-snug mt-0.5 break-words">{name}</p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {right}
             <Chevron open={open} />
           </div>
@@ -304,14 +304,14 @@ function GenEdBucket({ bucket }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`w-full text-left px-4 py-3.5 ${tone.hover} transition-colors`}
+        className={`w-full text-left px-3 sm:px-4 py-3.5 ${tone.hover} transition-colors`}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800">{bucket.name}</p>
+            <p className="text-sm font-semibold text-gray-800 break-words">{bucket.name}</p>
             <p className="text-xs text-gray-400 mt-0.5">{bucket.category}</p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {satisfied
               ? <Chip tone="green">Completed</Chip>
               : <Chip tone="amber">pick {remaining}</Chip>}
@@ -321,7 +321,7 @@ function GenEdBucket({ bucket }) {
       </button>
 
       {open && (
-        <div className="border-t border-gray-100 px-4 py-3">
+        <div className="border-t border-gray-100 px-3 sm:px-4 py-3">
           {bucket.suggestions.length === 0 ? (
             <Empty>
               {satisfied
@@ -395,7 +395,7 @@ export default function SuggestionsPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-10">
+      <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10">
         <header className="mb-6">
           <h1 className="text-xl font-bold text-gray-900">Suggested Courses</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -478,9 +478,9 @@ export default function SuggestionsPage() {
 
 function Stat({ value, label }) {
   return (
-    <div className="border border-gray-200 bg-white rounded-lg px-4 py-3 shadow-sm">
-      <p className="text-lg font-semibold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="border border-gray-200 bg-white rounded-lg px-3 sm:px-4 py-3 shadow-sm">
+      <p className="text-base sm:text-lg font-semibold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-500 leading-tight">{label}</p>
     </div>
   )
 }

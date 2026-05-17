@@ -49,12 +49,12 @@ export default function CourseCard({ course }) {
 
   return (
     <div className={`border ${border} ${bg} rounded-lg p-3`}>
-      <div className="flex justify-between items-start mb-1">
-        <span className="text-xs text-gray-500 font-medium">{code}</span>
+      <div className="flex justify-between items-start mb-1 gap-2">
+        <span className="text-xs text-gray-500 font-medium break-words">{code}</span>
         <Icon />
       </div>
-      <p className="text-sm font-semibold text-gray-800 mb-3 leading-snug">{title}</p>
-      <div className="flex justify-between items-center">
+      <p className="text-sm font-semibold text-gray-800 mb-3 leading-snug break-words">{title}</p>
+      <div className="flex justify-between items-center gap-2 flex-wrap">
         <span className="text-xs text-gray-400">
           {credits} credits{semester ? ` • ${semester}` : ' • Not scheduled'}
         </span>
