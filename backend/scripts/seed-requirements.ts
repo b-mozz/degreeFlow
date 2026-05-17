@@ -22,11 +22,9 @@
 import "dotenv/config";
 import fs from "fs";
 import path from "path";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 /**
  * The 12 requirement buckets, each tied to its exact `## ` heading in the

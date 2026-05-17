@@ -31,12 +31,10 @@
  */
 
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import { shortKey } from "./lib/course-key";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // RMP's public-facing GraphQL endpoint. The Authorization header is the same
 // hardcoded credential their own frontend uses ("test:test" base64-encoded).

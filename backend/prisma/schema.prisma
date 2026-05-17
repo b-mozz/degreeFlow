@@ -1,6 +1,7 @@
 // This 'generator' block tells Prisma to create the TypeScript code we use to talk to the DB.
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 // This 'datasource' block tells Prisma which database we are using.

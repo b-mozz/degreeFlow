@@ -2,14 +2,10 @@ import "dotenv/config"; // Load DATABASE_URL from .env into process.env
 import vm from "vm"; // Node.js 'Virtual Machine' module to execute code in a sandbox
 import fs from "fs";
 import path from "path";
-import { PrismaPg } from "@prisma/adapter-pg"; // Driver adapter that talks to PostgreSQL
 import { PrismaClient } from "@prisma/client"; // The database client generator
 import { parsePrereqs } from "./parse-prereqs"; // Our helper function from the other file
 
-// Prisma 7 requires us to explicitly pass a driver adapter.
-// PrismaPg connects to PostgreSQL using the URL from our .env file.
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // A list of department IDs used to build the URLs we will scrape.
 const DEPARTMENT_IDS = [
