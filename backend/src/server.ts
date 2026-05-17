@@ -30,14 +30,17 @@
  */
 
 import express from "express";
+import cors from "cors";
 import { coursesRouter } from "./routes/courses";
 import { recommendationsRouter } from "./routes/recommendations";
 
 const app = express();
 
+// Middleware: CORS must be registered before the routes.
+app.use(cors());
+
 // Middleware: parse JSON bodies on incoming requests so `req.body` is an
-// object instead of a raw stream. We don't use POST yet, but this is cheap
-// to add now and you'll need it the moment you write your first POST.
+// object instead of a raw stream.
 app.use(express.json());
 
 // Mount the courses router. Every route defined inside coursesRouter is now
