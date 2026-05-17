@@ -34,3 +34,7 @@ Thumbs.db
 
 # Claude local
 .claude/
+claude-code.md
+
+# Personal notes
+docs/

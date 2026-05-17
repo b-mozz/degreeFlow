@@ -74,7 +74,7 @@ async function findCourse(courseIdOrCode: string) {
  *
  * TODO (you): replace this placeholder with your real formula.
  */
-function scoreProfessor(p: {
+export function scoreProfessor(p: {
   avgRating: number | null;
   avgDifficulty: number | null;
   wouldTakeAgain: number | null;

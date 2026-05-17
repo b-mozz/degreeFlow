@@ -7,6 +7,7 @@ generator client {
 // This 'datasource' block tells Prisma which database we are using.
 datasource db {
   provider = "postgresql" // PostgreSQL is the specific type of database
+  // Connection URL lives in prisma.config.ts (Prisma 7 no longer allows `url` here).
 }
 
 /**
@@ -38,7 +39,60 @@ model Course {
   // are fast.
   professors Professor[]
 
+  // Which degree requirements this course can satisfy (via the join table).
+  requirementCourses RequirementCourse[]
+
   createdAt DateTime @default(now()) // Automatically set to the current time when created
+}
+
+/**
+ * MODEL: Requirement
+ * A single degree-requirement "bucket" — e.g. a Hunter Core area or a
+ * Pluralism & Diversity category. The list of courses that satisfy it lives
+ * in the RequirementCourse join table.
+ *
+ * This is the data the recommender's general-elective logic needs: for each
+ * Requirement, is the student's completed count >= `coursesNeeded`?
+ */
+model Requirement {
+  id     String @id @default(uuid())
+  slug   String @unique // stable key, e.g. "fc-creative-expression"
+  name   String // human label, e.g. "Creative Expression"
+  // High-level group: "Required Core" | "Flexible Core" | "Pluralism & Diversity"
+  category String
+  // How many courses from this bucket the student must complete.
+  coursesNeeded   Int     @default(1)
+  // Credits the bucket contributes toward the degree (null if not tracked).
+  creditsRequired Int?
+  description     String?
+
+  courses RequirementCourse[]
+
+  createdAt DateTime @default(now())
+}
+
+/**
+ * MODEL: RequirementCourse
+ * Join table: "this course counts toward this requirement". Same shape as
+ * Prerequisite — `courseId` links to the catalog when we have the course,
+ * and `courseCode` always holds the raw code so nothing is lost if a course
+ * isn't (yet) in our Course table.
+ */
+model RequirementCourse {
+  id String @id @default(uuid())
+
+  requirementId String
+  requirement   Requirement @relation(fields: [requirementId], references: [id])
+
+  // Linked catalog course, if we found a match.
+  courseId String?
+  course   Course? @relation(fields: [courseId], references: [id])
+
+  // The raw code (e.g. "ENGL 12000") — always populated.
+  courseCode String
+
+  // A course can't be listed twice for the same requirement.
+  @@unique([requirementId, courseCode])
 }
 
 /**

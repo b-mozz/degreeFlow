@@ -7,6 +7,7 @@
   "scripts": {
     "seed": "ts-node scripts/seed-catalog.ts",
     "seed:rmp": "ts-node scripts/seed-rmp.ts",
+    "seed:requirements": "ts-node scripts/seed-requirements.ts",
     "debug:rmp-unmatched": "ts-node scripts/debug-rmp-unmatched.ts",
     "dev": "ts-node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

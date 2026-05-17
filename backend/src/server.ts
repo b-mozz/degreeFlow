@@ -31,6 +31,7 @@
 
 import express from "express";
 import { coursesRouter } from "./routes/courses";
+import { recommendationsRouter } from "./routes/recommendations";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(express.json());
 // reachable under the /courses prefix. Add more routers here as the API grows
 // (e.g. app.use("/professors", professorsRouter)).
 app.use("/courses", coursesRouter);
+app.use("/recommendations", recommendationsRouter);
 
 // A trivial health check. Useful for "is the server actually up?" checks
 // without needing the database.

@@ -1,0 +1,87 @@
+{
+  "_comment": "Parsed from B_Mozzumdar_Transcript.pdf (Hunter unofficial transcript, print date 2025-12-19). Hand-extracted demo input for the recommender until the AI/OCR transcript parser exists. status: completed = graded; in-progress = current term, grade pending; planned = future term, registered.",
+  "student": {
+    "name": "Bimukti Mozzumdar",
+    "studentId": "24507756",
+    "printDate": "2025-12-19",
+    "programs": ["Computer Science B.A. (Computer Science Concentration)", "Special Honors Program", "Hunter College Focus Study Minor (FS: Computer Science Track)"],
+    "majorDeclaredTerm": "2025 Spring",
+    "foreignLanguage": "Exempt (FLNG 20202, HS, evaluated 2024-04-01)"
+  },
+  "cumulative": {
+    "gpa": 3.931,
+    "creditsAttempted": 74.0,
+    "creditsEarned": 44.0
+  },
+  "terms": [
+    {
+      "term": "2024 Spring",
+      "majorAtTime": "Undeclared",
+      "termGpa": 4.0,
+      "honor": "Dean's List",
+      "courses": [
+        { "code": "CLA 10100",  "title": "Classical Mythology",            "credits": 3, "grade": "A",  "status": "completed", "reqDesignation": "Flexible Core - World Cultures & Global Issues",     "instructor": "Victoria Jansson" },
+        { "code": "CSCI 12700", "title": "Introduction: Computer Science",  "credits": 3, "grade": "A",  "status": "completed", "reqDesignation": "Flexible Core - Scientific World",                  "instructor": "Melissa Lynch" },
+        { "code": "ENGL 12000", "title": "Expository Writing",              "credits": 3, "grade": "A",  "status": "completed", "reqDesignation": "Required Core - English Composition",               "instructor": "Gilbert Morales" },
+        { "code": "MATH 15000", "title": "Calculus I",                      "credits": 4, "grade": "A+", "status": "completed", "reqDesignation": "Required Core - Mathematical&QuantitativeReasoning", "instructor": "Munkuen Choy" },
+        { "code": "MEDIA 18000","title": "Introduction to Media Studies",   "credits": 3, "grade": "A",  "status": "completed", "reqDesignation": "Flexible Core - Individual and Society",             "instructor": "Brian Maston" }
+      ]
+    },
+    {
+      "term": "2024 Fall",
+      "majorAtTime": "Undeclared",
+      "termGpa": 4.0,
+      "honor": "Dean's List",
+      "courses": [
+        { "code": "CSCI 13500", "title": "Software Analysis and Design 1",   "credits": 4, "grade": "A+", "status": "completed", "reqDesignation": null, "instructor": "Tong Yi" },
+        { "code": "CSCI 15000", "title": "Discrete Structures",              "credits": 4, "grade": "A",  "status": "completed", "reqDesignation": null, "instructor": "Saadeddine Mneimneh" },
+        { "code": "ENGL 22000", "title": "Intro:Writing about Literature",   "credits": 3, "grade": "A+", "status": "completed", "reqDesignation": "Required Core - English Composition", "instructor": "Peter Kurtz" },
+        { "code": "MATH 15500", "title": "Calculus 2",                       "credits": 4, "grade": "A+", "status": "completed", "reqDesignation": "Required Core - Mathematical&QuantitativeReasoning", "instructor": "Anbo Chen" }
+      ]
+    },
+    {
+      "term": "2025 Spring",
+      "majorAtTime": "Computer Science B.A.",
+      "termGpa": 3.769,
+      "honor": "Dean's List",
+      "courses": [
+        { "code": "CSCI 16000", "title": "Computer Architecture 1",        "credits": 3, "grade": "A",  "status": "completed", "reqDesignation": null, "instructor": "Melissa Lynch" },
+        { "code": "CSCI 23500", "title": "Software Analysis and Design 2",  "credits": 3, "grade": "B",  "status": "completed", "reqDesignation": null, "instructor": "Gennadiy Maryash" },
+        { "code": "MATH 15600", "title": "Intr Math Proof Wrks",            "credits": 1, "grade": "A+", "status": "completed", "reqDesignation": null, "instructor": "Lev Shneerson" },
+        { "code": "MATH 16000", "title": "Matrix Algebra",                  "credits": 3, "grade": "A+", "status": "completed", "reqDesignation": null, "instructor": "Khalid Shafiq" },
+        { "code": "SOC 10100",  "title": "Introduction to Sociology",       "credits": 3, "grade": "A+", "status": "completed", "reqDesignation": "Flexible Core - Individual and Society", "instructor": "Cara Polte" }
+      ]
+    },
+    {
+      "term": "2025 Fall",
+      "majorAtTime": "Computer Science B.A. / Special Honors",
+      "termGpa": null,
+      "honor": null,
+      "courses": [
+        { "code": "CSCI 26000", "title": "Computer Architecture 2",         "credits": 3, "grade": null, "status": "in-progress", "reqDesignation": null, "instructor": "Pavel Shostak" },
+        { "code": "CSCI 33500", "title": "Software Analysis and Design 3",  "credits": 3, "grade": null, "status": "in-progress", "reqDesignation": null, "instructor": "Mohammad Manshaei" },
+        { "code": "FILM 10100", "title": "Introduction to Cinema",          "credits": 3, "grade": null, "status": "in-progress", "reqDesignation": "Flexible Core - Creative Expression", "instructor": "Neville Elder" },
+        { "code": "HONS 2012M", "title": "Human Value",                     "credits": 3, "grade": null, "status": "in-progress", "reqDesignation": null, "instructor": "Sarah Jeninsky / Jonathan Shannon" },
+        { "code": "STAT 21300", "title": "Introduction to Applied Stat",    "credits": 3, "grade": null, "status": "in-progress", "reqDesignation": "Required Core - Mathematical&QuantitativeReasoning", "instructor": "Fadime Demiralp" }
+      ]
+    },
+    {
+      "term": "2026 Spring",
+      "majorAtTime": "Computer Science B.A. / Special Honors",
+      "termGpa": null,
+      "honor": null,
+      "courses": [
+        { "code": "CHEM 10100", "title": "Inquiries - Nature of Matter",    "credits": 3, "grade": null, "status": "planned", "reqDesignation": "Required Core - Life and Physical Sciences", "instructor": null },
+        { "code": "CSCI 26500", "title": "Computer Theory 1",               "credits": 3, "grade": null, "status": "planned", "reqDesignation": null, "instructor": "Justin Tojeira" },
+        { "code": "CSCI 39548", "title": "Practical Web Development",        "credits": 3, "grade": null, "status": "planned", "reqDesignation": null, "instructor": "Kwame Baffour" },
+        { "code": "HONS 3011W", "title": "Lit & Question of Human Rights",  "credits": 3, "grade": null, "status": "planned", "reqDesignation": null, "instructor": "Sonali Perera" },
+        { "code": "MUSHL 10700","title": "The World of Music",              "credits": 3, "grade": null, "status": "planned", "reqDesignation": "Flexible Core - Creative Expression", "instructor": "George Murer" }
+      ]
+    }
+  ],
+  "derived": {
+    "completed": ["CLA 10100", "CSCI 12700", "ENGL 12000", "MATH 15000", "MEDIA 18000", "CSCI 13500", "CSCI 15000", "ENGL 22000", "MATH 15500", "CSCI 16000", "CSCI 23500", "MATH 15600", "MATH 16000", "SOC 10100"],
+    "inProgress": ["CSCI 26000", "CSCI 33500", "FILM 10100", "HONS 2012M", "STAT 21300"],
+    "planned": ["CHEM 10100", "CSCI 26500", "CSCI 39548", "HONS 3011W", "MUSHL 10700"]
+  }
+}
