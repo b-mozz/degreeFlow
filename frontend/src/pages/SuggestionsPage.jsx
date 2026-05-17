@@ -285,60 +285,83 @@ function MajorElectives({ majorElectives }) {
   )
 }
 
-function GeneralEducation({ generalElectives }) {
-  const needed = generalElectives.filter((b) => !b.satisfied)
-  const done = generalElectives.filter((b) => b.satisfied)
+/**
+ * One general-education requirement, shown as a bordered box.
+ * Green border when satisfied, amber when courses are still needed.
+ * Clicking the header expands the box to reveal eligible courses.
+ */
+function GenEdBucket({ bucket }) {
+  const [open, setOpen] = useState(false)
+  const satisfied = bucket.satisfied
+  const remaining = bucket.coursesNeeded - bucket.coursesAccountedFor
+
+  const tone = satisfied
+    ? { border: 'border-emerald-300', hover: 'hover:bg-emerald-50/60' }
+    : { border: 'border-amber-300', hover: 'hover:bg-amber-50/60' }
 
   return (
-    <>
-      {needed.length === 0 ? (
-        <Empty>Every general-education requirement is covered.</Empty>
-      ) : (
-        needed.map((bucket) => (
-          <div
-            key={bucket.slug}
-            className="mt-4 pt-4 border-t border-gray-100 first:mt-0 first:pt-0 first:border-0"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-gray-800">{bucket.name}</p>
-              <Chip tone="amber">
-                pick {bucket.coursesNeeded - bucket.coursesAccountedFor}
-              </Chip>
-            </div>
-            <p className="text-xs text-gray-400 mb-2">{bucket.category}</p>
-            {bucket.suggestions.length === 0 ? (
-              <Empty>No suggestions available for this requirement.</Empty>
-            ) : (
-              <CardList>
-                {bucket.suggestions.map((s) => (
-                  <ExpandableCourseCard
-                    key={s.code}
-                    code={s.code}
-                    name={s.name}
-                    credits={s.credits}
-                    professor={s.professor}
-                    accent="amber"
-                  />
-                ))}
-              </CardList>
-            )}
+    <div className={`border ${tone.border} bg-white rounded-xl shadow-sm overflow-hidden`}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`w-full text-left px-4 py-3.5 ${tone.hover} transition-colors`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-800">{bucket.name}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{bucket.category}</p>
           </div>
-        ))
-      )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {satisfied
+              ? <Chip tone="green">Completed</Chip>
+              : <Chip tone="amber">pick {remaining}</Chip>}
+            <Chevron open={open} />
+          </div>
+        </div>
+      </button>
 
-      {done.length > 0 && (
-        <>
-          <GroupLabel>Already covered</GroupLabel>
-          <div className="flex flex-wrap gap-2">
-            {done.map((b) => (
-              <span key={b.slug} className="text-xs text-gray-500">
-                <span className="text-emerald-500">✓</span> {b.name}
-              </span>
-            ))}
-          </div>
-        </>
+      {open && (
+        <div className="border-t border-gray-100 px-4 py-3">
+          {bucket.suggestions.length === 0 ? (
+            <Empty>
+              {satisfied
+                ? 'This requirement is already covered.'
+                : 'No suggestions available for this requirement.'}
+            </Empty>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+              {bucket.suggestions.map((s) => (
+                <ExpandableCourseCard
+                  key={s.code}
+                  code={s.code}
+                  name={s.name}
+                  credits={s.credits}
+                  professor={s.professor}
+                  accent="amber"
+                />
+              ))}
+            </div>
+          )}
+        </div>
       )}
-    </>
+    </div>
+  )
+}
+
+function GeneralEducation({ generalElectives }) {
+  if (generalElectives.length === 0) {
+    return <Empty>No general-education requirements found.</Empty>
+  }
+  // Show requirements still needed first, completed ones after.
+  const ordered = [...generalElectives].sort(
+    (a, b) => Number(a.satisfied) - Number(b.satisfied),
+  )
+  return (
+    <div className="space-y-3">
+      {ordered.map((bucket) => (
+        <GenEdBucket key={bucket.slug} bucket={bucket} />
+      ))}
+    </div>
   )
 }
 
