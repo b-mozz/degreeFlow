@@ -20,29 +20,16 @@
  * In production we just create it once and move on.
  */
 
-import "dotenv/config"; // Load DATABASE_URL from .env before we touch Prisma.
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 
-// Tell TypeScript that `globalThis` *might* have a `prisma` field on it.
-// (We're adding it ourselves below; TS doesn't know that by default.)
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-// Prisma 7 requires an explicit driver adapter — it doesn't talk to Postgres
-// directly anymore. PrismaPg is the official pg-based one and is what your
-// seed scripts use, so we match that here.
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-
 export const prisma =
-  globalForPrisma.prisma ?? // reuse existing one if present (dev hot-reload)
+  globalForPrisma.prisma ??
   new PrismaClient({
-    adapter,
-    // `log` controls what Prisma prints. Useful while learning — you can SEE
-    // the SQL it generates for each query. Remove "query" once it gets noisy.
     log: ["query", "warn", "error"],
   });
 
-// In dev, save the instance globally so the next reload finds it.
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
