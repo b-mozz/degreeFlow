@@ -20,6 +20,7 @@
  * In production we just create it once and move on.
  */
 
+import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
@@ -27,7 +28,7 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ["query", "warn", "error"],
+    log: ["warn", "error"],
   });
 
 if (process.env.NODE_ENV !== "production") {
