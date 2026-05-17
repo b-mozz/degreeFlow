@@ -42,6 +42,35 @@ async function reconstructLines(page) {
   return lines
 }
 
+/** Season ordering within an academic year (Winter earliest, Fall latest). */
+const SEASON_ORDER = { Winter: 0, Spring: 1, Summer: 2, Fall: 3 }
+
+/** A sortable ordinal for a term like "2026 Fall" — bigger means later. */
+function termOrdinal(year, season) {
+  return year * 4 + (SEASON_ORDER[season] ?? 0)
+}
+
+/** The term that contains today's date, as an ordinal. */
+function currentTermOrdinal(now = new Date()) {
+  const month = now.getMonth() // 0 = Jan
+  const season = month <= 4 ? 'Spring' : month <= 7 ? 'Summer' : 'Fall'
+  return termOrdinal(now.getFullYear(), season)
+}
+
+/**
+ * Status for an ungraded course, decided by comparing its term to today:
+ * a future term is `planned`, the current or a past term is `in-progress`.
+ */
+function statusForTerm(term, now = new Date()) {
+  const match = term.match(/(20\d{2})\s+(Spring|Fall|Summer|Winter)/i)
+  if (!match) return 'in-progress'
+  const ordinal = termOrdinal(
+    parseInt(match[1], 10),
+    match[2][0].toUpperCase() + match[2].slice(1).toLowerCase(),
+  )
+  return ordinal > currentTermOrdinal(now) ? 'planned' : 'in-progress'
+}
+
 /**
  * Parses raw lines into the transcript object format.
  */
@@ -102,16 +131,11 @@ export function parseTranscriptLines(lines) {
         if (!title) continue
       }
 
-      // Determine status
+      // Determine status: graded courses are completed; ungraded ones are
+      // planned or in-progress depending on whether their term is in the future.
       let status = 'completed'
       if (!grade || earned === '0.00') {
-        if (currentTerm.includes('2026 Spring')) {
-          status = 'planned'
-        } else if (currentTerm.includes('2025 Fall')) {
-          status = 'in-progress'
-        } else if (!grade) {
-          status = 'in-progress'
-        }
+        status = statusForTerm(currentTerm)
       }
 
       transcript.courses.push({
