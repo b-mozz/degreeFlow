@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { parsePDFTranscript, parseTranscriptLines } from '../lib/pdfParser'
+import { loadTranscript } from '../lib/transcript'
+import { getRecommendations } from '../lib/api'
 
 function UploadIcon() {
   return (
@@ -54,6 +56,18 @@ export default function UploadPage() {
 
       console.log('Parsed transcript:', result)
       localStorage.setItem('parsedTranscript', JSON.stringify(result))
+
+      // Warm the recommendations cache in the background. loadTranscript()
+      // re-reads the value we just stored and derives the course-code arrays.
+      // Fire-and-forget: the result lands in sessionStorage so the Suggestions
+      // page gets an instant cache hit later. Errors here are non-fatal.
+      const t = loadTranscript()
+      getRecommendations({
+        completed: t.completed,
+        inProgress: t.inProgress,
+        planned: t.planned,
+      }).catch(() => {})
+
       navigate('/flowchart')
     } catch (err) {
       console.error('Failed to parse transcript:', err)

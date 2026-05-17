@@ -22,20 +22,52 @@ async function handle(res) {
 /**
  * POST /recommendations — the course recommendation engine.
  *
+ * The result is a pure function of the transcript input, so we cache it in
+ * sessionStorage keyed on that input. Repeated visits to the Suggestions page
+ * (within the same browser session) are then instant — the backend SQL query
+ * only runs the first time, or whenever the transcript actually changes.
+ * Pass `{ force: true }` to bypass the cache and re-fetch.
+ *
  * @param {object}   input
  * @param {string[]} input.completed   passed course codes
  * @param {string[]} [input.inProgress] current-term codes (grade pending)
  * @param {string[]} [input.planned]    future-term codes (registered)
  * @param {string}   [input.major]      degree slug, defaults to "CS"
+ * @param {boolean}  [input.force]      skip the cache and re-fetch
  * @returns {Promise<object>} { major, completedCount, required, majorElectives, generalElectives }
  */
-export async function getRecommendations({ completed, inProgress = [], planned = [], major = 'CS' }) {
+export async function getRecommendations({
+  completed,
+  inProgress = [],
+  planned = [],
+  major = 'CS',
+  force = false,
+}) {
+  const payload = { completed, inProgress, planned, major }
+  const cacheKey = `recommendations:${JSON.stringify(payload)}`
+
+  if (!force) {
+    try {
+      const cached = sessionStorage.getItem(cacheKey)
+      if (cached) return JSON.parse(cached)
+    } catch {
+      // Corrupt cache or storage unavailable — fall through to a fresh fetch.
+    }
+  }
+
   const res = await fetch(`${BASE}/recommendations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ completed, inProgress, planned, major }),
+    body: JSON.stringify(payload),
   })
-  return handle(res)
+  const data = await handle(res)
+
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify(data))
+  } catch {
+    // Storage full or unavailable — caching is best-effort, ignore.
+  }
+  return data
 }
 
 /**
