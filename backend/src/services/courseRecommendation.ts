@@ -31,7 +31,8 @@ import {
   qualifiesAsElective,
 } from "../config/degreeRequirements";
 import { buildPrereqGraphs, countDownstream, PrereqGraphs } from "./prereqGraph";
-import { recommendGeneralElectives, GenEdBucket } from "./genEdRecommendation";
+import { recommendGeneralElectives, GenEdBucket, ProfessorPick } from "./genEdRecommendation";
+import { scoreProfessor } from "./professorRanking";
 
 /** A course the student can take right now. */
 export interface EligibleCourse {
@@ -40,6 +41,8 @@ export interface EligibleCourse {
   credits: number;
   /** How many further courses this one transitively unlocks. Higher = take sooner. */
   unlocks: number;
+  /** Best-rated professor for this course, or null. Populated for major electives. */
+  professor: ProfessorPick | null;
 }
 
 /** A course the student still needs but cannot take yet. */
@@ -49,6 +52,34 @@ export interface BlockedCourse {
   credits: number;
   /** Prerequisites not yet satisfied. */
   missing: string[];
+  /** Best-rated professor for this course, or null. Populated for major electives. */
+  professor: ProfessorPick | null;
+}
+
+/** Pick the highest-scoring professor for a course, or null if none are rated. */
+function bestProfessor(
+  professors: {
+    name: string;
+    avgRating: number | null;
+    avgDifficulty: number | null;
+    wouldTakeAgain: number | null;
+    numRatings: number;
+  }[]
+): ProfessorPick | null {
+  let best: ProfessorPick | null = null;
+  for (const p of professors) {
+    const score = scoreProfessor(p);
+    if (!best || score > best.score) {
+      best = {
+        name: p.name,
+        avgRating: p.avgRating,
+        avgDifficulty: p.avgDifficulty,
+        numRatings: p.numRatings,
+        score,
+      };
+    }
+  }
+  return best;
 }
 
 export interface RequirementBucket {
@@ -138,9 +169,17 @@ function classifyNeeded(
 
     const missing = unmetPrereqs(code, completed, graphs);
     if (missing.length === 0) {
-      eligible.push({ code, name, credits, unlocks: countDownstream(code, graphs.unlocks) });
+      eligible.push({
+        code,
+        name,
+        credits,
+        unlocks: countDownstream(code, graphs.unlocks),
+        // Professor recommendations are a major-elective feature; the required
+        // core doesn't surface them, so leave null here.
+        professor: null,
+      });
     } else {
-      blocked.push({ code, name, credits, missing });
+      blocked.push({ code, name, credits, missing, professor: null });
     }
   }
 
@@ -181,7 +220,24 @@ export async function recommendCourses(
         { code: { in: [...completed] } },
       ],
     },
-    select: { code: true, name: true, credits: true, subjectCode: true, courseNumber: true },
+    select: {
+      code: true,
+      name: true,
+      credits: true,
+      subjectCode: true,
+      courseNumber: true,
+      // Professors are attached to major electives so each card can show a
+      // recommended instructor (best by scoreProfessor) without an extra call.
+      professors: {
+        select: {
+          name: true,
+          avgRating: true,
+          avgDifficulty: true,
+          wouldTakeAgain: true,
+          numRatings: true,
+        },
+      },
+    },
   });
   const info: CourseInfo = new Map(rows.map((r) => [r.code, r]));
 
@@ -213,7 +269,12 @@ export async function recommendCourses(
     if (!qualifiesAsElective(facts, req)) continue;
 
     const missing = unmetPrereqs(facts.code, completed, graphs);
-    const base = { code: facts.code, name: facts.name, credits: facts.credits };
+    const base = {
+      code: facts.code,
+      name: facts.name,
+      credits: facts.credits,
+      professor: bestProfessor(facts.professors),
+    };
     if (missing.length === 0) {
       electiveEligible.push({ ...base, unlocks: countDownstream(facts.code, graphs.unlocks) });
     } else {

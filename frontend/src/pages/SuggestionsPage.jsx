@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import Collapsible from '../components/Collapsible'
 import { loadTranscript } from '../lib/transcript'
-import { getRecommendations } from '../lib/api'
+import { getRecommendations, getTopProfessors } from '../lib/api'
 
 /* ------------------------------------------------------------------ *
  * Small presentational pieces
@@ -126,6 +126,115 @@ function MajorRequirements({ required }) {
   )
 }
 
+/** Chevron that rotates when its card is open. */
+function Chevron({ open }) {
+  return (
+    <svg
+      className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  )
+}
+
+/** One professor line inside an expanded elective card. */
+function ProfessorListRow({ professor }) {
+  const rating = professor.avgRating != null ? professor.avgRating.toFixed(1) : '—'
+  const diff = professor.avgDifficulty != null ? professor.avgDifficulty.toFixed(1) : '—'
+  return (
+    <li className="flex items-center justify-between gap-3 text-xs">
+      <span className="text-gray-700 font-medium truncate">{professor.name}</span>
+      <span className="text-gray-500 flex-shrink-0">
+        <span className="text-amber-600">★ {rating}</span>
+        <span className="text-gray-300"> · </span>
+        difficulty {diff}
+        <span className="text-gray-300"> · </span>
+        {professor.numRatings} ratings
+      </span>
+    </li>
+  )
+}
+
+/**
+ * A major-elective card. Styled like the Flowchart's CourseCard, and clickable:
+ * expanding it fetches the top professors for that course on demand.
+ */
+function ElectiveCard({ course }) {
+  const { code, name, credits, unlocks, professor } = course
+  const [open, setOpen] = useState(false)
+  const [profs, setProfs] = useState(null)
+  const [loadingProfs, setLoadingProfs] = useState(false)
+  const [profError, setProfError] = useState(null)
+
+  const toggle = () => {
+    const next = !open
+    setOpen(next)
+    // Lazy-load professors the first time the card is opened.
+    if (next && profs === null && !loadingProfs) {
+      setLoadingProfs(true)
+      setProfError(null)
+      getTopProfessors(code, 5)
+        .then((res) => setProfs(res.professors))
+        .catch((err) => setProfError(err.message))
+        .finally(() => setLoadingProfs(false))
+    }
+  }
+
+  return (
+    <div className="border border-emerald-200 bg-white rounded-xl shadow-sm overflow-hidden self-start">
+      <button
+        type="button"
+        onClick={toggle}
+        className="w-full text-left p-3.5 hover:bg-emerald-50/60 transition-colors"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-2">
+              <span className="text-sm font-bold text-gray-900">{code}</span>
+              <span className="text-xs text-gray-400">{credits} cr</span>
+            </div>
+            <p className="text-sm text-gray-600 leading-snug mt-0.5">{name}</p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {unlocks > 0
+              ? <Chip tone="purple">unlocks {unlocks}</Chip>
+              : <Chip tone="green">Ready</Chip>}
+            <Chevron open={open} />
+          </div>
+        </div>
+        <div className="mt-2.5 pt-2.5 border-t border-gray-100">
+          <ProfessorNote professor={professor} />
+        </div>
+      </button>
+
+      {open && (
+        <div className="border-t border-emerald-100 bg-emerald-50/40 px-3.5 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
+            Top professors
+          </p>
+          {loadingProfs && <p className="text-xs text-gray-500">Loading professors…</p>}
+          {profError && (
+            <p className="text-xs text-red-500">Couldn’t load professors ({profError})</p>
+          )}
+          {profs && profs.length === 0 && (
+            <p className="text-xs text-gray-500">No rated professors on record.</p>
+          )}
+          {profs && profs.length > 0 && (
+            <ul className="space-y-1.5">
+              {profs.map((p) => (
+                <ProfessorListRow key={p.id} professor={p} />
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function MajorElectives({ majorElectives }) {
   const { creditsCompleted, creditsRequired, eligible } = majorElectives
   const pct = creditsRequired > 0 ? Math.min(100, (creditsCompleted / creditsRequired) * 100) : 0
@@ -145,22 +254,12 @@ function MajorElectives({ majorElectives }) {
         <Empty>No eligible electives found.</Empty>
       ) : (
         <>
-          <GroupLabel>Eligible now</GroupLabel>
-          <CardList>
+          <GroupLabel>Eligible now — tap a course for professors</GroupLabel>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
             {eligible.map((c) => (
-              <CourseRow
-                key={c.code}
-                code={c.code}
-                name={c.name}
-                credits={c.credits}
-                right={
-                  c.unlocks > 0
-                    ? <Chip tone="purple">unlocks {c.unlocks}</Chip>
-                    : <Chip tone="green">Ready</Chip>
-                }
-              />
+              <ElectiveCard key={c.code} course={c} />
             ))}
-          </CardList>
+          </div>
         </>
       )}
     </>
