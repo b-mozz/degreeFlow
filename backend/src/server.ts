@@ -29,7 +29,7 @@
  *   "dev": "ts-node src/server.ts"
  */
 
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { coursesRouter } from "./routes/courses";
 import { recommendationsRouter } from "./routes/recommendations";
@@ -52,6 +52,12 @@ app.use("/recommendations", recommendationsRouter);
 // A trivial health check. Useful for "is the server actually up?" checks
 // without needing the database.
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// Global Error Handler to return JSON instead of Express's default HTML
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ error: err.message || "Internal Server Error" });
+});
 
 // `PORT` from the environment lets you change the port without editing code
 // (e.g. `PORT=4000 npm run dev`). Default to 3000 for local dev.
