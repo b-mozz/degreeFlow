@@ -82,22 +82,22 @@ export default function UploadPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto py-8 sm:py-16 px-4">
+      <div className="max-w-2xl mx-auto py-16 px-4">
         <p className="text-center text-xs font-semibold tracking-widest text-purple-600 uppercase mb-3">
           Step 1 of 3
         </p>
-        <h1 className="text-2xl sm:text-4xl font-bold text-center text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold text-center text-gray-900 mb-4">
           Upload Your Transcript
         </h1>
-        <p className="text-center text-gray-500 text-sm leading-relaxed mb-8 sm:mb-10 px-2">
-          Paste or upload your unofficial Hunter transcript. Our AI will
+        <p className="text-center text-gray-500 text-sm leading-relaxed mb-10">
+          Paste or upload your unofficial Hunter transcript. Our AI will<br />
           extract your courses, grades, and credits automatically.
         </p>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           {/* Drop zone */}
           <div
-            className={`border-2 border-dashed rounded-xl p-6 sm:p-12 text-center cursor-pointer transition-colors ${
+            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
               file
                 ? 'border-green-400 bg-green-50'
                 : dragOver
@@ -115,13 +115,13 @@ export default function UploadPage() {
 
             {file ? (
               <>
-                <p className="font-semibold text-green-700 mb-1 break-all">{file.name}</p>
+                <p className="font-semibold text-green-700 mb-1">{file.name}</p>
                 <p className="text-xs text-gray-400">Click to change file</p>
               </>
             ) : (
               <>
-                <p className="font-semibold text-gray-700 mb-1 text-sm sm:text-base">Drag & drop your transcript PDF</p>
-                <p className="text-gray-400 text-xs sm:text-sm mb-5">or click to browse files</p>
+                <p className="font-semibold text-gray-700 mb-1">Drag & drop your transcript PDF</p>
+                <p className="text-gray-400 text-sm mb-5">or click to browse files</p>
                 <button
                   type="button"
                   className="bg-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-800 transition-colors"
@@ -155,7 +155,7 @@ export default function UploadPage() {
           </label>
           <textarea
             rows={5}
-            className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base sm:text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
+            className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
             placeholder="Paste your unofficial transcript here..."
             value={text}
             onChange={(e) => {
@@ -169,7 +169,7 @@ export default function UploadPage() {
           <button
             onClick={handleParse}
             disabled={!canParse}
-            className="w-full sm:w-auto border border-purple-700 text-purple-700 bg-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="border border-purple-700 text-purple-700 bg-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isParsing ? 'Parsing...' : 'Parse Transcript'}
           </button>

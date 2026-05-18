@@ -10,10 +10,10 @@ export default function Navbar() {
   const { pathname } = useLocation()
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 sm:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-0">
-      <span className="text-xl sm:text-2xl font-bold text-purple-700 tracking-tight">DegreeFlow</span>
+    <nav className="bg-white border-b border-gray-200 px-8 py-4 flex items-center">
+      <span className="text-2xl font-bold text-purple-700 tracking-tight">DegreeFlow</span>
 
-      <div className="flex-1 flex justify-center gap-4 sm:gap-8 flex-wrap">
+      <div className="flex-1 flex justify-center gap-8">
         {NAV_LINKS.map(({ label, to }) => {
           const active = pathname === to
           return (

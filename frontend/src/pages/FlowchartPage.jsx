@@ -24,9 +24,9 @@ function ArrowDown() {
 
 function Stat({ value, label }) {
   return (
-    <div className="border border-gray-200 bg-white rounded-lg px-3 sm:px-4 py-3 shadow-sm">
-      <p className="text-base sm:text-lg font-semibold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 leading-tight">{label}</p>
+    <div className="border border-gray-200 bg-white rounded-lg px-4 py-3 shadow-sm">
+      <p className="text-lg font-semibold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-500">{label}</p>
     </div>
   )
 }
@@ -89,7 +89,7 @@ export default function FlowchartPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10">
+      <div className="max-w-3xl mx-auto px-4 py-10">
         <header className="mb-6">
           <h1 className="text-xl font-bold text-gray-900">Degree Flowchart</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -101,7 +101,7 @@ export default function FlowchartPage() {
         </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-4 gap-3 mb-4">
           <Stat value={gpa != null ? gpa.toFixed(2) : '—'} label="cumulative GPA" />
           <Stat value={creditsEarned} label="credits earned" />
           <Stat value={byStatus.completed.length} label="courses completed" />
