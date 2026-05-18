@@ -153,9 +153,10 @@ export function parseTranscriptLines(lines) {
 }
 
 /**
- * Main entry point for PDF parsing in the browser.
+ * Pulls raw reconstructed lines out of every page — separated from
+ * parseTranscriptLines so callers can sniff the content before parsing.
  */
-export async function parsePDFTranscript(arrayBuffer) {
+export async function extractPDFLines(arrayBuffer) {
   const loadingTask = pdfjs.getDocument({ data: arrayBuffer })
   const doc = await loadingTask.promise
   let allLines = []
@@ -165,6 +166,29 @@ export async function parsePDFTranscript(arrayBuffer) {
     const lines = await reconstructLines(page)
     allLines = allLines.concat(lines)
   }
+  return allLines
+}
 
+/**
+ * Quick heuristic to reject PDFs that aren't Hunter unofficial transcripts.
+ * Scores known markers; needs at least two to pass so a single coincidental
+ * phrase ("Name:" on a generic form) doesn't fool it.
+ */
+export function looksLikeTranscript(lines) {
+  const text = lines.join(' ')
+  let score = 0
+  if (/Cum\s+GPA/i.test(text)) score++
+  if (/(20\d{2})\s+(Spring|Fall|Summer|Winter)\s+Term/i.test(text)) score++
+  if (/Unofficial Copy/i.test(text)) score++
+  if (/Hunter College/i.test(text)) score++
+  if (/\bName:\s+\S/.test(text)) score++
+  return score >= 2
+}
+
+/**
+ * Main entry point for PDF parsing in the browser.
+ */
+export async function parsePDFTranscript(arrayBuffer) {
+  const allLines = await extractPDFLines(arrayBuffer)
   return parseTranscriptLines(allLines)
 }

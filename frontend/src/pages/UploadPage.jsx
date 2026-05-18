@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { parsePDFTranscript, parseTranscriptLines } from '../lib/pdfParser'
+import { extractPDFLines, looksLikeTranscript, parseTranscriptLines } from '../lib/pdfParser'
 import { loadTranscript } from '../lib/transcript'
 import { getRecommendations } from '../lib/api'
 
@@ -19,6 +19,7 @@ export default function UploadPage() {
   const [file, setFile] = useState(null)
   const [text, setText] = useState('')
   const [isParsing, setIsParsing] = useState(false)
+  const [notTranscriptOpen, setNotTranscriptOpen] = useState(false)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
@@ -42,16 +43,36 @@ export default function UploadPage() {
     }
   }
 
+  const rejectNonTranscript = () => {
+    setNotTranscriptOpen(true)
+    setFile(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   const handleParse = async () => {
     setIsParsing(true)
     try {
-      let result
+      let lines
       if (file) {
         const buffer = await file.arrayBuffer()
-        result = await parsePDFTranscript(buffer)
+        lines = await extractPDFLines(buffer)
       } else {
-        const lines = text.split('\n').filter(l => l.trim())
-        result = parseTranscriptLines(lines)
+        lines = text.split('\n').filter(l => l.trim())
+      }
+
+      if (!looksLikeTranscript(lines)) {
+        rejectNonTranscript()
+        return
+      }
+
+      const result = parseTranscriptLines(lines)
+
+      // Defense in depth: a PDF can hit the marker heuristic and still parse
+      // zero courses (e.g. a transcript-shaped form). Treat that as "not a
+      // transcript" too, since the rest of the app needs at least one course.
+      if (!result.courses || result.courses.length === 0) {
+        rejectNonTranscript()
+        return
       }
 
       console.log('Parsed transcript:', result)
@@ -174,6 +195,50 @@ export default function UploadPage() {
             {isParsing ? 'Parsing...' : 'Parse Transcript'}
           </button>
         </div>
+      </div>
+
+      <NotTranscriptModal
+        open={notTranscriptOpen}
+        onClose={() => setNotTranscriptOpen(false)}
+      />
+    </div>
+  )
+}
+
+function NotTranscriptModal({ open, onClose }) {
+  if (!open) return null
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="not-transcript-title"
+      >
+        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+          <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+        </div>
+        <h2 id="not-transcript-title" className="text-lg font-semibold text-gray-900 text-center mb-2">
+          That doesn't look like a transcript
+        </h2>
+        <p className="text-sm text-gray-500 text-center leading-relaxed mb-5">
+          DegreeFlow only accepts unofficial Hunter College transcripts.
+          Please upload a PDF of your transcript and try again.
+        </p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full bg-purple-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-800 transition-colors"
+        >
+          OK
+        </button>
       </div>
     </div>
   )
