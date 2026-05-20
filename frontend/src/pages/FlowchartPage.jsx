@@ -101,7 +101,7 @@ export default function FlowchartPage() {
         </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <Stat value={gpa != null ? gpa.toFixed(2) : '—'} label="cumulative GPA" />
           <Stat value={creditsEarned} label="credits earned" />
           <Stat value={byStatus.completed.length} label="courses completed" />
