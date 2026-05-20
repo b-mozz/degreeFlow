@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Collapsible from '../components/Collapsible'
 import { loadTranscript } from '../lib/transcript'
@@ -20,6 +21,23 @@ function Chip({ children, tone = 'gray' }) {
     <span className={`text-xs font-medium px-2 py-0.5 rounded ${CHIP_TONES[tone]}`}>
       {children}
     </span>
+  )
+}
+
+/** Header link back to the upload page, so users can swap transcripts without hunting for it. */
+function UploadNewTranscriptLink() {
+  return (
+    <Link
+      to="/upload"
+      className="flex-shrink-0 inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-purple-700 hover:text-purple-800 hover:underline mt-1"
+    >
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+      <span className="hidden sm:inline">Upload new transcript</span>
+      <span className="sm:hidden">New transcript</span>
+    </Link>
   )
 }
 
@@ -396,19 +414,20 @@ export default function SuggestionsPage() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 py-10">
-        <header className="mb-6">
-          <h1 className="text-xl font-bold text-gray-900">Suggested Courses</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {data ? data.major : 'B.A. Computer Science'}
-            {transcript.source === 'demo' && (
-              <span className="ml-2 text-xs text-gray-400">· demo transcript</span>
-            )}
-          </p>
+        <header className="mb-6 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-gray-900">Suggested Courses</h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {data ? data.major : 'B.A. Computer Science'}
+              {transcript.source === 'demo' && (
+                <span className="ml-2 text-xs text-gray-400">· demo transcript</span>
+              )}
+            </p>
+          </div>
+          <UploadNewTranscriptLink />
         </header>
 
-        {loading && (
-          <p className="text-sm text-gray-500 py-12 text-center">Loading recommendations…</p>
-        )}
+        {loading && <SuggestionsSkeleton />}
 
         {error && !loading && (
           <div className="border border-red-200 bg-red-50 rounded-lg p-4">
@@ -481,6 +500,54 @@ function Stat({ value, label }) {
     <div className="border border-gray-200 bg-white rounded-lg px-4 py-3 shadow-sm">
       <p className="text-lg font-semibold text-gray-900">{value}</p>
       <p className="text-xs text-gray-500">{label}</p>
+    </div>
+  )
+}
+
+/** Placeholder matching the Stat card shape while /recommendations is in flight. */
+function SkeletonStat() {
+  return (
+    <div className="border border-gray-200 bg-white rounded-lg px-4 py-3 shadow-sm animate-pulse">
+      <div className="h-5 w-12 bg-gray-200 rounded mb-1.5" />
+      <div className="h-3 w-20 bg-gray-200 rounded" />
+    </div>
+  )
+}
+
+/** Placeholder shaped like a collapsed Collapsible header. */
+function SkeletonCollapsible() {
+  return (
+    <div className="border border-gray-200 rounded-xl bg-white shadow-sm">
+      <div className="w-full flex items-center justify-between gap-2 px-4 sm:px-5 py-4 animate-pulse">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-2.5 h-2.5 rounded-full bg-gray-200 flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="h-3.5 w-40 max-w-full bg-gray-200 rounded mb-1.5" />
+            <div className="h-3 w-56 max-w-full bg-gray-200 rounded" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="h-5 w-14 bg-gray-200 rounded" />
+          <div className="w-4 h-4 bg-gray-200 rounded" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SuggestionsSkeleton() {
+  return (
+    <div aria-busy="true" aria-label="Loading recommendations">
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <SkeletonStat />
+        <SkeletonStat />
+        <SkeletonStat />
+      </div>
+      <div className="space-y-3">
+        <SkeletonCollapsible />
+        <SkeletonCollapsible />
+        <SkeletonCollapsible />
+      </div>
     </div>
   )
 }
