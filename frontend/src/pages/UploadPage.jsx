@@ -5,6 +5,12 @@ import { extractPDFLines, looksLikeTranscript, parseTranscriptLines } from '../l
 import { loadTranscript } from '../lib/transcript'
 import { getRecommendations } from '../lib/api'
 
+const MAX_FILE_BYTES = 5 * 1024 * 1024 // 5 MB — must match the limit shown in the upload UI.
+
+function formatMB(bytes) {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 function UploadIcon() {
   return (
     <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -19,37 +25,62 @@ export default function UploadPage() {
   const [file, setFile] = useState(null)
   const [text, setText] = useState('')
   const [isParsing, setIsParsing] = useState(false)
-  const [notTranscriptOpen, setNotTranscriptOpen] = useState(false)
+  const [rejection, setRejection] = useState(null)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
   const canParse = (file !== null || text.trim().length > 0) && !isParsing
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-    const dropped = e.dataTransfer.files[0]
-    if (dropped?.type === 'application/pdf') {
-      setFile(dropped)
-      setText('') // Clear text if file is dropped
-    }
-  }
-
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0]
-    if (selected) {
-      setFile(selected)
-      setText('')
-    }
-  }
-
-  const rejectNonTranscript = () => {
-    setNotTranscriptOpen(true)
+  const clearFileInput = () => {
     setFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  const rejectTooLarge = (f) => {
+    setRejection({
+      title: 'That file is too large',
+      body: `“${f.name}” is ${formatMB(f.size)}. DegreeFlow only accepts transcripts up to 5 MB — try exporting a fresh copy from CUNYfirst, or paste the text below instead.`,
+    })
+    clearFileInput()
+  }
+
+  const rejectNonTranscript = () => {
+    setRejection({
+      title: "That doesn't look like a transcript",
+      body: 'DegreeFlow only accepts unofficial Hunter College transcripts. Please upload a PDF of your transcript and try again.',
+    })
+    clearFileInput()
+  }
+
+  /** Accept a freshly-picked file iff it's a PDF and within the size limit. */
+  const acceptFile = (candidate) => {
+    if (!candidate) return
+    if (candidate.type !== 'application/pdf') return // file input's `accept` filter already enforces this on click
+    if (candidate.size > MAX_FILE_BYTES) {
+      rejectTooLarge(candidate)
+      return
+    }
+    setFile(candidate)
+    setText('')
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    setDragOver(false)
+    acceptFile(e.dataTransfer.files[0])
+  }
+
+  const handleFileChange = (e) => {
+    acceptFile(e.target.files[0])
+  }
+
   const handleParse = async () => {
+    // Safety net: acceptFile already rejects oversized files at selection time,
+    // but check here too in case a stale File object somehow slips through.
+    if (file && file.size > MAX_FILE_BYTES) {
+      rejectTooLarge(file)
+      return
+    }
     setIsParsing(true)
     try {
       let lines
@@ -197,16 +228,16 @@ export default function UploadPage() {
         </div>
       </div>
 
-      <NotTranscriptModal
-        open={notTranscriptOpen}
-        onClose={() => setNotTranscriptOpen(false)}
+      <RejectionModal
+        rejection={rejection}
+        onClose={() => setRejection(null)}
       />
     </div>
   )
 }
 
-function NotTranscriptModal({ open, onClose }) {
-  if (!open) return null
+function RejectionModal({ rejection, onClose }) {
+  if (!rejection) return null
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
@@ -217,7 +248,7 @@ function NotTranscriptModal({ open, onClose }) {
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="not-transcript-title"
+        aria-labelledby="rejection-title"
       >
         <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
           <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,12 +256,11 @@ function NotTranscriptModal({ open, onClose }) {
               d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
           </svg>
         </div>
-        <h2 id="not-transcript-title" className="text-lg font-semibold text-gray-900 text-center mb-2">
-          That doesn't look like a transcript
+        <h2 id="rejection-title" className="text-lg font-semibold text-gray-900 text-center mb-2">
+          {rejection.title}
         </h2>
         <p className="text-sm text-gray-500 text-center leading-relaxed mb-5">
-          DegreeFlow only accepts unofficial Hunter College transcripts.
-          Please upload a PDF of your transcript and try again.
+          {rejection.body}
         </p>
         <button
           type="button"
