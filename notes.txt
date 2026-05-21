@@ -1,0 +1,2 @@
+DegreeFlow - Hunter College CS degree planning tool
+Team project - Spring 2026
