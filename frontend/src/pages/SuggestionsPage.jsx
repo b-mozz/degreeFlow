@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar'
 import Collapsible from '../components/Collapsible'
 import { loadTranscript } from '../lib/transcript'
 import { getRecommendations, getTopProfessors } from '../lib/api'
+import NoTranscript from '../components/NoTranscript'
 
 /* ------------------------------------------------------------------ *
  * Small presentational pieces
@@ -393,7 +394,10 @@ export default function SuggestionsPage() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const hasTranscript = transcript.source !== 'empty' && transcript.courses.length > 0
+
   useEffect(() => {
+    if (!hasTranscript) return
     let cancelled = false
     setLoading(true)
     getRecommendations({
@@ -405,7 +409,9 @@ export default function SuggestionsPage() {
       .catch((err) => { if (!cancelled) setError(err.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [transcript])
+  }, [transcript, hasTranscript])
+
+  if (!hasTranscript) return <NoTranscript />
 
   const genEdGaps = data ? data.generalElectives.filter((b) => !b.satisfied).length : 0
 

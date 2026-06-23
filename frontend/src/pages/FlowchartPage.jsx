@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar'
 import CourseCard from '../components/CourseCard'
 import { loadTranscript } from '../lib/transcript'
 import { getRecommendations } from '../lib/api'
+import NoTranscript from '../components/NoTranscript'
 
 /** Per-status section heading style. */
 const SECTION_META = {
@@ -72,9 +73,12 @@ export default function FlowchartPage() {
   const [rec, setRec] = useState(null)
   const [recError, setRecError] = useState(null)
 
+  const hasTranscript = transcript.source !== 'empty' && transcript.courses.length > 0
+
   // The transcript is local, so the completed/in-progress/planned sections
   // render immediately. Only the "Remaining — Major" section needs the API.
   useEffect(() => {
+    if (!hasTranscript) return
     let cancelled = false
     getRecommendations({
       completed: transcript.completed,
@@ -84,7 +88,9 @@ export default function FlowchartPage() {
       .then((r) => { if (!cancelled) setRec(r) })
       .catch((e) => { if (!cancelled) setRecError(e.message) })
     return () => { cancelled = true }
-  }, [transcript])
+  }, [transcript, hasTranscript])
+
+  if (!hasTranscript) return <NoTranscript />
 
   // Transcript courses, bucketed by status into CourseCard-shaped objects.
   const byStatus = { completed: [], 'in-progress': [], planned: [] }
